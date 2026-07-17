@@ -25,6 +25,8 @@ const EXTRACTION_SCHEMA = {
   },
 };
 
+const GITHUB_PAGES_ORIGIN = "https://aileenlotuaco01.github.io";
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -32,6 +34,25 @@ function json(data, status = 200) {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
     },
+  });
+}
+
+function isAllowedBrowserOrigin(request) {
+  const origin = request.headers.get("origin");
+  return !origin || origin === new URL(request.url).origin || origin === GITHUB_PAGES_ORIGIN;
+}
+
+function withCors(response, request) {
+  if (request.headers.get("origin") !== GITHUB_PAGES_ORIGIN) return response;
+  const headers = new Headers(response.headers);
+  headers.set("access-control-allow-origin", GITHUB_PAGES_ORIGIN);
+  headers.set("access-control-allow-methods", "POST, OPTIONS");
+  headers.set("access-control-allow-headers", "content-type");
+  headers.set("vary", "Origin");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
   });
 }
 
@@ -123,8 +144,12 @@ const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/api/extract") {
+      if (!isAllowedBrowserOrigin(request)) return json({ error: "Origin not allowed." }, 403);
+      if (request.method === "OPTIONS") {
+        return withCors(new Response(null, { status: 204 }), request);
+      }
       if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
-      return extractSyllabus(request, env);
+      return withCors(await extractSyllabus(request, env), request);
     }
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
     const assetUrl = new URL(pathname, request.url);
