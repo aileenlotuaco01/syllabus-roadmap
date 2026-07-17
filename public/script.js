@@ -26,6 +26,10 @@ const elements = {
 let roadmapWeeks = [];
 let selectedFile = null;
 
+const API_ENDPOINT = location.hostname.endsWith("github.io")
+  ? "https://syllabus-roadmap.aileenlotuaco2.chatgpt.site/api/extract"
+  : "/api/extract";
+
 function setStatus(message, kind = "") {
   elements.status.textContent = message;
   elements.status.className = `status ${kind}`.trim();
@@ -122,7 +126,7 @@ function parseSyllabus(text) {
 }
 
 async function extractWithAI(text, semesterStart) {
-  const response = await fetch("/api/extract", {
+  const response = await fetch(API_ENDPOINT, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ text, semesterStart }),
