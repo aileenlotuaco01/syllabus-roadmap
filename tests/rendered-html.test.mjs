@@ -1,91 +1,58 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
+const root = new URL("../", import.meta.url);
 
-async function render() {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
+test("has an assignment-ready GitHub Pages entry point", async () => {
+  const [html, script, css, readme] = await Promise.all([
+    readFile(new URL("index.html", root), "utf8"),
+    readFile(new URL("public/script.js", root), "utf8"),
+    readFile(new URL("public/style.css", root), "utf8"),
+    readFile(new URL("README.md", root), "utf8"),
+  ]);
+
+  assert.match(html, /<title>Syllabus Roadmap<\/title>/);
+  assert.match(html, /public\/style\.css/);
+  assert.match(html, /public\/script\.js/);
+  assert.match(html, /aria-live="polite"/);
+  assert.match(script, /github\.io/);
+  assert.match(script, /syllabus-roadmap\.aileenlotuaco2\.chatgpt\.site\/api\/extract/);
+  assert.match(css, /@media \(max-width: 680px\)/);
+  assert.match(readme, /## What it does/);
+  assert.match(readme, /## Live app/);
+  assert.match(readme, /## How to use it/);
+  assert.match(readme, /## Known limitations/);
+});
+
+test("allows only the GitHub Pages frontend to call the cross-origin API", async () => {
+  const workerUrl = new URL("../worker/static-site.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
-  return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
+  const preflight = await worker.fetch(
+    new Request("https://syllabus-roadmap.example/api/extract", {
+      method: "OPTIONS",
+      headers: { origin: "https://aileenlotuaco01.github.io" },
     }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
+    {},
+  );
+  assert.equal(preflight.status, 204);
+  assert.equal(
+    preflight.headers.get("access-control-allow-origin"),
+    "https://aileenlotuaco01.github.io",
+  );
+
+  const rejected = await worker.fetch(
+    new Request("https://syllabus-roadmap.example/api/extract", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        origin: "https://untrusted.example",
       },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
+      body: JSON.stringify({ text: "Week 1: Introduction to the course", semesterStart: "2026-09-01" }),
+    }),
+    { OPENAI_API_KEY: "not-used" },
   );
-}
-
-test("server-renders the starter loading skeleton", async () => {
-  const response = await render();
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
-
-  const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
-});
-
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
-  ]);
-
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
-
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
-
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
-
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  assert.equal(rejected.status, 403);
 });
