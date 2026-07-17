@@ -86,6 +86,12 @@ h2 {
 }
 
 .supporting-copy { margin: 0; color: var(--muted); }
+.trust-note {
+  max-width: 620px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
 
 .drop-zone {
   display: grid;
@@ -250,7 +256,18 @@ textarea:focus, input:focus, button:focus-visible {
 .task.assignment .task-dot { background: var(--blue); }
 .task-title { font-weight: 760; }
 .task-note { margin-top: 2px; color: var(--muted); font-size: 0.86rem; }
+.task-evidence { margin-top: 6px; color: var(--muted); font-size: 0.78rem; font-style: italic; }
+.task-meta { display: grid; justify-items: end; gap: 6px; }
 .task-type { color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.confidence {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #e8f1df;
+  color: var(--green-dark);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+.confidence.review { background: #f7dfaa; color: #70480f; }
 
 footer { padding: 44px 0 30px; color: var(--muted); font-size: 0.85rem; }
 
@@ -263,5 +280,5 @@ footer { padding: 44px 0 30px; color: var(--muted); font-size: 0.85rem; }
   .roadmap-heading { align-items: stretch; flex-direction: column; }
   .calendar-button { width: 100%; justify-content: center; }
   .task { grid-template-columns: 10px 1fr; }
-  .task-type { grid-column: 2; }
+  .task-meta { grid-column: 2; justify-items: start; grid-auto-flow: column; justify-content: start; }
 }

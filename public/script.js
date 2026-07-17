@@ -121,6 +121,22 @@ function parseSyllabus(text) {
   return addPreparationTasks(items);
 }
 
+async function extractWithAI(text, semesterStart) {
+  const response = await fetch("/api/extract", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ text, semesterStart }),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || "AI extraction is temporarily unavailable.");
+  }
+  if (!Array.isArray(result.items) || !result.items.length) {
+    throw new Error("The AI could not find any course dates. Check the syllabus text and try again.");
+  }
+  return result.items;
+}
+
 function addPreparationTasks(items) {
   const expanded = [...items];
   items.forEach((item) => {
@@ -245,7 +261,9 @@ function renderRoadmap(items, startDate) {
 
   roadmapWeeks = [...grouped.entries()].map(([week, tasks]) => ({
     week,
-    date: weekDate(startDate, week),
+    date: tasks.find((task) => task.date)?.date
+      ? new Date(`${tasks.find((task) => task.date).date}T12:00:00`)
+      : weekDate(startDate, week),
     tasks,
   }));
 
@@ -259,15 +277,20 @@ function renderRoadmap(items, startDate) {
             <div>
               <div class="task-title">${escapeHtml(task.title)}</div>
               ${task.notes ? `<div class="task-note">${escapeHtml(task.notes)}</div>` : ""}
+              ${task.evidence ? `<div class="task-evidence">Source: “${escapeHtml(task.evidence)}”</div>` : ""}
             </div>
-            <span class="task-type">${escapeHtml(task.type)}</span>
+            <span class="task-meta">
+              <span class="task-type">${escapeHtml(task.type)}</span>
+              <span class="confidence ${task.needsReview ? "review" : ""}">${task.needsReview ? "Review" : `${Math.round(task.confidence * 100)}%`}</span>
+            </span>
           </div>
         `).join("")}
       </div>
     </article>
   `).join("");
 
-  elements.roadmapSummary.textContent = `${items.length} calendar items across ${roadmapWeeks.length} active weeks`;
+  const reviewCount = items.filter((item) => item.needsReview).length;
+  elements.roadmapSummary.textContent = `${items.length} AI-extracted items across ${roadmapWeeks.length} active weeks${reviewCount ? ` · ${reviewCount} need review` : " · all high confidence"}`;
   elements.roadmapSection.hidden = false;
   elements.roadmapSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -344,10 +367,10 @@ elements.generateBtn.addEventListener("click", async () => {
     if (text.length < 20) throw new Error("Very little text was found. Scanned PDFs may need OCR.");
 
     elements.syllabusInput.value = text;
-    const items = parseSyllabus(text);
-    if (!items.length) throw new Error("No dated course items were found. Try pasting the schedule section of the syllabus.");
+    setStatus("AI is reading dates, deadlines, and course requirements…");
+    const items = await extractWithAI(text, elements.semesterStart.value);
     renderRoadmap(items, elements.semesterStart.value);
-    setStatus("Roadmap ready.", "success");
+    setStatus("AI roadmap ready. Review any amber items before downloading.", "success");
   } catch (error) {
     setStatus(error.message || "The syllabus could not be processed.", "error");
   } finally {
