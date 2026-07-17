@@ -1,7 +1,8 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "syllabus-roadmap",
   "version": "0.1.0",
   "private": true,
+  "description": "Turn a syllabus into a trustworthy AI-assisted semester roadmap and calendar.",
   "engines": {
     "node": ">=22.13.0"
   },
