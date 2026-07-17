@@ -28,7 +28,7 @@
         </label>
 
         <div class="divider"><span>or paste text</span></div>
-        <textarea id="syllabusInput" rows="6" placeholder="Paste syllabus text here…"></textarea>
+        <textarea id="syllabusInput" rows="6" aria-label="Syllabus text" placeholder="Paste syllabus text here…"></textarea>
 
         <div class="date-row">
           <label for="semesterStart">
@@ -42,7 +42,7 @@
           <span>Create my roadmap</span>
           <span aria-hidden="true">→</span>
         </button>
-        <p id="statusMessage" class="status" role="status"></p>
+        <p id="statusMessage" class="status" role="status" aria-live="polite"></p>
       </section>
 
       <section id="roadmapSection" class="roadmap-section" aria-labelledby="roadmapTitle" hidden>
