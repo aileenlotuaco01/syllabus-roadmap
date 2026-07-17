@@ -262,12 +262,12 @@ textarea:focus, input:focus, button:focus-visible {
 .confidence {
   padding: 3px 7px;
   border-radius: 999px;
-  background: #e8f1df;
-  color: var(--green-dark);
   font-size: 0.68rem;
   font-weight: 850;
 }
+.confidence.high { background: #e8f1df; color: var(--green-dark); }
 .confidence.review { background: #f7dfaa; color: #70480f; }
+.confidence.uncertain { background: #f5c9bf; color: #873421; }
 
 footer { padding: 44px 0 30px; color: var(--muted); font-size: 0.85rem; }
 

@@ -252,6 +252,12 @@ function formatDate(date) {
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date);
 }
 
+function confidenceLabel(task) {
+  if (task.confidence < 0.65) return { label: "Uncertain", className: "uncertain" };
+  if (task.needsReview || task.confidence < 0.85) return { label: "Review", className: "review" };
+  return { label: "High confidence", className: "high" };
+}
+
 function renderRoadmap(items, startDate) {
   const grouped = new Map();
   items.forEach((item) => {
@@ -271,7 +277,9 @@ function renderRoadmap(items, startDate) {
     <article class="week">
       <div class="week-number">Week ${week}<span class="week-date">${formatDate(date)}</span></div>
       <div class="tasks">
-        ${tasks.map((task) => `
+        ${tasks.map((task) => {
+          const confidence = confidenceLabel(task);
+          return `
           <div class="task ${task.type.toLowerCase()}">
             <span class="task-dot" aria-hidden="true"></span>
             <div>
@@ -281,10 +289,11 @@ function renderRoadmap(items, startDate) {
             </div>
             <span class="task-meta">
               <span class="task-type">${escapeHtml(task.type)}</span>
-              <span class="confidence ${task.needsReview ? "review" : ""}">${task.needsReview ? "Review" : `${Math.round(task.confidence * 100)}%`}</span>
+              <span class="confidence ${confidence.className}">${confidence.label}</span>
             </span>
           </div>
-        `).join("")}
+        `;
+        }).join("")}
       </div>
     </article>
   `).join("");
