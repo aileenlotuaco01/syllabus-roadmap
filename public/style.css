@@ -1,0 +1,267 @@
+:root {
+  --paper: #f5f1e8;
+  --card: #fffdf8;
+  --ink: #17221c;
+  --muted: #687069;
+  --line: #d8d5cb;
+  --green: #234f3b;
+  --green-dark: #17382a;
+  --lime: #d7ee9d;
+  --orange: #d9693b;
+  --blue: #5479a3;
+  --shadow: 0 24px 70px rgba(38, 53, 44, 0.1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(215, 238, 157, 0.32), transparent 23rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+
+.page {
+  width: min(1080px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.hero {
+  max-width: 790px;
+  padding: 84px 0 44px;
+}
+
+.eyebrow, .step-label {
+  color: var(--green);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow { margin: 0 0 16px; }
+
+h1 {
+  max-width: 780px;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(3.2rem, 8vw, 6.7rem);
+  font-weight: 500;
+  letter-spacing: -0.065em;
+  line-height: 0.9;
+}
+
+.intro {
+  max-width: 640px;
+  margin: 30px 0 0;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+}
+
+.import-card, .roadmap-section {
+  background: var(--card);
+  border: 1px solid rgba(35, 79, 59, 0.14);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+}
+
+.import-card {
+  max-width: 760px;
+  padding: clamp(24px, 5vw, 48px);
+}
+
+h2 {
+  margin: 8px 0 4px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.supporting-copy { margin: 0; color: var(--muted); }
+
+.drop-zone {
+  display: grid;
+  place-items: center;
+  min-height: 190px;
+  margin-top: 28px;
+  padding: 28px;
+  border: 1.5px dashed #9fa99f;
+  border-radius: 16px;
+  background: #faf8f2;
+  text-align: center;
+  transition: 160ms ease;
+}
+
+.drop-zone:hover, .drop-zone.dragging {
+  border-color: var(--green);
+  background: #f2f6e8;
+  transform: translateY(-1px);
+}
+
+.drop-zone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.upload-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 12px;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--green-dark);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.file-label { font-weight: 800; }
+.file-hint { color: var(--muted); font-size: 0.88rem; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.divider::before, .divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+textarea, input[type="date"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  padding: 14px;
+}
+
+textarea { min-height: 132px; resize: vertical; }
+
+textarea:focus, input:focus, button:focus-visible {
+  outline: 3px solid rgba(84, 121, 163, 0.24);
+  outline-offset: 2px;
+}
+
+.date-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 1fr;
+  align-items: end;
+  gap: 22px;
+  margin: 22px 0;
+}
+
+.date-row label { font-weight: 750; }
+.date-row label input { margin-top: 6px; }
+.date-row p { margin: 0 0 12px; color: var(--muted); font-size: 0.88rem; }
+
+.primary-button, .calendar-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 800;
+}
+
+.primary-button {
+  width: 100%;
+  padding: 17px 20px;
+  background: var(--green);
+  color: white;
+  font-size: 1rem;
+}
+
+.primary-button:hover { background: var(--green-dark); }
+.primary-button:disabled { cursor: wait; opacity: 0.7; }
+
+.status { min-height: 24px; margin: 12px 0 -8px; color: var(--muted); font-weight: 700; }
+.status.error { color: #a33e2d; }
+.status.success { color: var(--green); }
+
+.roadmap-section { margin-top: 34px; padding: clamp(24px, 5vw, 48px); }
+
+.roadmap-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.calendar-button {
+  flex: 0 0 auto;
+  padding: 13px 17px;
+  background: var(--lime);
+  color: var(--green-dark);
+}
+
+.calendar-button:hover { background: #c7e47f; }
+
+.roadmap { display: grid; margin-top: 12px; }
+
+.week {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 24px;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.week:last-child { border-bottom: 0; padding-bottom: 4px; }
+.week-number { color: var(--muted); font-size: 0.8rem; font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+.week-date { display: block; margin-top: 5px; color: var(--ink); font-size: 0.86rem; letter-spacing: 0; text-transform: none; }
+
+.tasks { display: grid; gap: 10px; }
+.task {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 11px;
+  background: #f7f5ef;
+}
+
+.task-dot { width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; background: var(--green); }
+.task.exam .task-dot { background: var(--orange); }
+.task.assignment .task-dot { background: var(--blue); }
+.task-title { font-weight: 760; }
+.task-note { margin-top: 2px; color: var(--muted); font-size: 0.86rem; }
+.task-type { color: var(--muted); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+
+footer { padding: 44px 0 30px; color: var(--muted); font-size: 0.85rem; }
+
+@media (max-width: 680px) {
+  .page { width: min(100% - 20px, 1080px); }
+  .hero { padding: 52px 8px 32px; }
+  h1 { font-size: clamp(3.2rem, 16vw, 5rem); }
+  .import-card, .roadmap-section { border-radius: 16px; }
+  .date-row, .week { grid-template-columns: 1fr; gap: 12px; }
+  .roadmap-heading { align-items: stretch; flex-direction: column; }
+  .calendar-button { width: 100%; justify-content: center; }
+  .task { grid-template-columns: 10px 1fr; }
+  .task-type { grid-column: 2; }
+}
